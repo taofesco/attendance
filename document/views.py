@@ -48,3 +48,51 @@ class Login(APIView):
             return Response({
                 "data": "Wrong Username or Password"
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmployeeList(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        employees = Employee.objects.all()
+        serializer = EmployeeSerializer(employees, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = EmployeeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AttendanceList(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        attendances = Attendance.objects.all()
+        serializer = AttendanceSerializer(attendances, many=True)
+        return Response(serializer.data)
+
+
+
+class GetAttendance(APIView):
+    def get(self, request, card_id):
+        employee = Employee.objects.get(card_id=card_id)
+        try:
+            attendance = Attendance.objects.get(employee=employee,date=date.today())
+            if attendance.time_in:
+                time_now = time.localtime()
+                str_time = time.strftime('%H:%M', time_now)
+                attendance.time_out = str_time
+                attendance.save()
+        except Attendance.DoesNotExist:
+            time_now = time.localtime()
+            str_time = time.strftime('%H:%M', time_now)
+            attendance = Attendance.objects.create(
+                employee=employee, date=date.today(), time_in=str_time)
+        serializer = AttendanceSerializer(attendance)
+        return Response(serializer.data)
+
+            
+
