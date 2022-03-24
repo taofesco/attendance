@@ -8,7 +8,7 @@ from public.views import *
 urlpatterns = [
     path('', MainPage.as_view(), name="index"),
     path('account_activation/', ActivationPage.as_view(), name="account_activation"),
-    path('service-worker.js', MainPage.as_view(), name="service-worker.js"),
+    #path('service-worker.js', MainPage.as_view(), name="service-worker.js"),
 
 ]
 
